@@ -12,6 +12,11 @@ header = ['title','status','atype','entered','ip','mac','comments']
 @app.route('/')
 @app.route('/index')
 def index():
+	if request.method == 'POST':
+                if request.form['btn'] == 'Upload':
+                        file = request.files['file']
+                        upload_file(file)
+
 	return render_template("index.html",
 				title='Home')
 
@@ -21,6 +26,11 @@ def alert():
 
 	alerts = iris_db.query(Alert)
 	#alerts = []
+
+	if request.method == 'POST':
+                if request.form['btn'] == 'Upload':
+                        file = request.files['file']
+                        upload_file(file)
 
 	if request.method == 'POST':
 		if request.form['btn'] == 'New':
@@ -54,6 +64,11 @@ def alert():
 @app.route('/new_alert', methods=['GET', 'POST'])
 def new_alert():
 	form = NewAlertForm()
+	if request.method == 'POST':
+                if request.form['btn'] == 'Upload':
+                        file = request.files['file']
+                        upload_file(file)
+
         #mongoalchemy
         #alerts = session.query(Alert).filter(Alert.name == 'Second_Alert')       
 	new = 'New'
@@ -85,6 +100,10 @@ def new_alert():
 def update_alert():
 	alerts = []
 	form= UpdateAlertForm()
+	if request.method == 'POST':
+                if request.form['btn'] == 'Upload':
+                        file = request.files['file']
+                        upload_file(file)
 
 	selected = request.args.getlist('selected')
 	print selected
@@ -143,6 +162,11 @@ def update_alert():
 
 @app.route('/incident', methods=['GET', 'POST'])
 def incident():
+
+	if request.method == 'POST':
+                if request.form['btn'] == 'Upload':
+                        file = request.files['file']
+                        upload_file(file)
 	
 	incidents = iris_db.query(Incident)
 
@@ -166,6 +190,12 @@ def incident():
 
 @app.route('/new_incident', methods=['GET', 'POST'])
 def new_incident():
+
+	if request.method == 'POST':
+                if request.form['btn'] == 'Upload':
+                        file = request.files['file']
+                        upload_file(file)
+
 	form = NewIncidentForm()
 	if form.validate_on_submit():
                 title = form.title.data
@@ -209,6 +239,10 @@ def update_incident():
 		incidents.append(d)
 
 	if request.method == 'POST':
+		if request.form['btn'] == 'Upload':
+			file = request.files['file']
+			upload_file(file)
+
 		update = request.form.getlist('update')
 	
 		if update:
@@ -245,6 +279,7 @@ def allowed_file(filename):
 
 def parse_upload(directory, filename):
 	#note: not taking into account that ip,mac,... can be a list or our we forcing one value one column for this
+	#note : make a config for the column names and then for loop to add each filed
 	with open(directory+'/'+filename) as f:
 		records = csv.DictReader(f)
 		for r in records:
@@ -265,18 +300,16 @@ def parse_upload(directory, filename):
 						entered=entered))
 
 
-@app.route('/upload_file', methods=['GET', 'POST'])
-def upload_file():
-	if request.method == 'POST':
-		file = request.files['file']
-		if file and allowed_file(file.filename):
-			filename = secure_filename(file.filename)
-			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-			flash('Upload Complete')
-			parse_upload(app.config['UPLOAD_FOLDER'], filename)
-			return redirect(url_for('upload_file'))
-		else:
-			flash('Upload Error: Check File Type')
+
+def upload_file(file):
+	if file and allowed_file(file.filename):
+		filename = secure_filename(file.filename)
+		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+		flash('Upload Complete')
+		parse_upload(app.config['UPLOAD_FOLDER'], filename)
+		return redirect(url_for('upload_file'))
+	else:
+		flash('Upload Error: Check File Type')
 	return render_template('upload_file.html',
 				title='Upload File')
 
