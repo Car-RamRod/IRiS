@@ -5,8 +5,6 @@
 			<th>Status</th>
 			<th>Type</th>
 			<th>Title</th>
-			<th>IP</th>
-			<th>MAC</th>
 			<th>Date Entered</th>
 			<th>Comments</th>
 		</tr>
@@ -23,16 +21,6 @@
 					{% endfor %}
 				</td> -->
 				<td>{{ i.title }}</td>
-				<td>
-					{% for a in i.ip %}
-						{{ a }}
-					{% endfor %}
-				</td>
-				<td>
-					{% for a in i.mac %}
-						{{ a }}
-					{% endfor %}
-				</td>
 				<td>{{ i.entered }}</td>
 				<td>
 					{% for a in i.comments %}

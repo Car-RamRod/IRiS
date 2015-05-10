@@ -38,6 +38,12 @@ def alert():
 		elif request.form['btn'] == 'Update':
 			selected = request.form.getlist('selected')
 			return redirect(url_for('update_alert', selected=selected))
+		
+		elif request.form['btn'] == 'View':
+			selected = request.form.getlist('selected')
+			return redirect(url_for('details_alert', selected=selected))
+	
+	
 		elif request.form['btn'] == 'Promote':
 			selected = request.form.getlist('selected')
 			for s in selected:
@@ -52,22 +58,36 @@ def alert():
 				entered=q.entered,
 				comments=q.comments,
 				status="Promoted",
-				itype=q.itype,
-				alerts=alerts
+				itype=q.itype
+#				alerts=alerts
 				))
 	
 	return render_template('alert/alert.html', 
 				title='Alert',
 				alerts=alerts)
 
+@app.route('/details_alert', methods=['GET', 'POST'])
+def details_alert():
+
+	selected = request.args.getlist('selected')[0]
+	query = iris_db.query(Alert).filter(Alert.title == selected)
+	
+	return render_template("alert/details_alert.html",
+			                                title='Alert Details',
+			                                alert=query[0].represent())
+
+
+
 
 @app.route('/new_alert', methods=['GET', 'POST'])
 def new_alert():
 	form = NewAlertForm()
+	'''
 	if request.method == 'POST':
                 if request.form['btn'] == 'Upload':
                         file = request.files['file']
                         upload_file(file)
+	'''
 
         #mongoalchemy
         #alerts = session.query(Alert).filter(Alert.name == 'Second_Alert')       
@@ -100,11 +120,12 @@ def new_alert():
 def update_alert():
 	alerts = []
 	form= UpdateAlertForm()
-	if request.method == 'POST':
+	'''
+        if request.method == 'POST':
                 if request.form['btn'] == 'Upload':
                         file = request.files['file']
                         upload_file(file)
-
+        '''
 	selected = request.args.getlist('selected')
 	print selected
 	for s in selected:
@@ -167,7 +188,7 @@ def incident():
                 if request.form['btn'] == 'Upload':
                         file = request.files['file']
                         upload_file(file)
-	
+			
 	incidents = iris_db.query(Incident)
 
 	if request.method == 'POST':
@@ -176,6 +197,9 @@ def incident():
 		elif request.form['btn'] == 'Update':
 			selected = request.form.getlist('selected')
 			return redirect(url_for('update_incident', selected=selected))
+		elif request.form['btn'] == 'View':
+			selected = request.form.getlist('selected')
+			return redirect(url_for('details_incident', selected=selected))
 	
 	return render_template('incident/incident.html', 
 				title='Incident',
@@ -188,13 +212,24 @@ def incident():
 	#			incidents=incidents,
 	#			form=form)
 
+@app.route('/details_incident', methods=['GET', 'POST'])
+def details_incident():
+
+	selected = request.args.getlist('selected')[0]
+	query = iris_db.query(Incident).filter(Incident.title == selected)
+	
+	return render_template("incident/details_incident.html",
+			                                title='Incident Details',
+			                                incident=query[0])
+
+
 @app.route('/new_incident', methods=['GET', 'POST'])
 def new_incident():
 
-	if request.method == 'POST':
-                if request.form['btn'] == 'Upload':
-                        file = request.files['file']
-                        upload_file(file)
+#	if request.method == 'POST':
+ #               if request.form['btn'] == 'Upload':
+  #                      file = request.files['file']
+   #                     upload_file(file)
 
 	form = NewIncidentForm()
 	if form.validate_on_submit():
@@ -202,7 +237,7 @@ def new_incident():
                 itype = form.itype.data
                 entered = datetime.utcnow()
                 comments = [form.comments.data]
-		alerts = []
+		resources = []
 
 				
                 iris_db.insert(Incident(title=title,
@@ -210,7 +245,7 @@ def new_incident():
                                         itype=itype,
                                         comments=comments,
                                         entered=entered,
-					alerts=alerts)
+					resources=resources)
 					)
                 return redirect(url_for('incident'))
 
@@ -310,7 +345,8 @@ def upload_file(file):
 		return redirect(url_for('upload_file'))
 	else:
 		flash('Upload Error: Check File Type')
-	return render_template('upload_file.html',
-				title='Upload File')
+		return 
+	#return render_template('upload_file.html',
+	#			title='Upload File')
 
 

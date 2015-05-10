@@ -1,0 +1,33 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block content %}
+	<div>
+		<h1>Incidents</h1>
+
+
+		<div style="text-align: center;">
+		
+		<h1>Title</h1>
+		<p>{{ incident.title }}</p>
+		
+		<h1>Status</h1>
+		<p>{{ incident.status }}</p>
+
+		<h1>Type</h1>
+		<p>{{ incident.itype }}</p>
+
+		<h1>Entered</h1>
+		<p>{{ incident.entered }}</p>
+
+		<h1>Comments</h1>
+		{% for c in incident.comments %}
+		<p>{{ c }}</p>
+		{% endfor %}
+
+
+
+
+		</div>	
+	
+	</div>
+{% endblock %}
