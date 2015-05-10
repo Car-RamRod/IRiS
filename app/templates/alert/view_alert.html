@@ -2,42 +2,20 @@
 	<thead class="fixedHeader">
 		<tr>
 			<th></th>
+			<th>Resource Type
+			<th>Source</th>
 			<th>Status</th>
-			<th>Type</th>
-			<th>Title</th>
-			<th>IP</th>
-			<th>MAC</th>
-			<th>Date Entered</th>
-			<th>Comments</th>
+			<th>Timestamp</th>
 		</tr>
 	</thead>
 	<tbody class="scrollContent">
 		{% for a in alerts %}
 			<tr>
-				<td><input type=checkbox name=selected value="{{ a.title }}"></td>
+				<td><input type=checkbox name=selected value="{{ a.resource_type }}"></td>
+				<td>{{ a.resource_type }}</td>
+				<td>{{ a.source }}</td>
 				<td>{{ a.status }}</td>
-				<td>
-					{% for i in a.atype %}
-						{{ i }}
-					{% endfor %}
-				</td>
-				<td>{{ a.title }}</td>
-				<td>
-					{% for i in a.ip %}
-						{{ i }}
-					{% endfor %}
-				</td>
-				<td>
-					{% for i in a.mac %}
-						{{ i }}
-					{% endfor %}
-				</td>
-				<td>{{ a.entered }}</td>
-				<td>
-					{% for i in a.comments %}
-						{{ i }}
-					{% endfor %}
-				</td>
+				<td>{{ a.timestamp }}</td>
 			</tr>
 		{% endfor %}
 	</tbody>

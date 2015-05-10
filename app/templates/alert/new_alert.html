@@ -3,34 +3,25 @@
 {% block content %}
 <div>
                <h1>New Alert</h1>
-                <form action="" method="post" name="login">
+                <form action="" method="post">
                         {{ form.hidden_tag() }}
                         <div>
-                                {{ form.atype.label }}{{ form.atype(size=24) }}
-                                {% for error in form.atype.errors %}
+                                {{ form.resource_type.label }}{{ form.resource_type(size=24) }}
+                                {% for error in form.resource_type.errors %}
                                         <span style="color: red;">[{{error}}]</span>
                                 {% endfor %}<br>
                         </div>
                         <div>
-                                {{ form.title.label }}{{ form.title(size=24) }}
-                                {% for error in form.title.errors %}
+                                {{ form.source.label }}{{ form.source(size=24) }}
+                                {% for error in form.source.errors %}
                                         <span style="color: red;">[{{error}}]</span>
                                 {% endfor %}<br>
                         </div>
                         <div>
-                                {{ form.ip.label }}{{ form.ip(size=24) }}
-                                {% for error in form.ip.errors %}
+                                {{ form.status.label }}{{ form.status(size=24) }}
+                                {% for error in form.status.errors %}
                                         <span style="color: red;">[{{error}}]</span>
                                 {% endfor %}<br>
-                        </div>
-                        <div>
-                                {{ form.mac.label }}{{ form.mac(size=24) }}
-                                {% for error in form.mac.errors %}
-                                        <span style="color: red;">[{{error}}]</span>
-                                {% endfor %}<br>
-                        </div>
-                        <div>
-                                {{ form.comments.label }}{{ form.comments }}
                         </div>
                         <div><input type="submit" value="Submit"></div>
 
