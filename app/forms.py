@@ -4,12 +4,10 @@ from wtforms import StringField, SelectField, TextAreaField, DateTimeField, Bool
 from wtforms.validators import DataRequired, Length, IPAddress, MacAddress, Optional
 
 class NewAlertForm(Form):
-	title = StringField('Title',validators=[DataRequired()])
-	atype = StringField('Type',validators=[DataRequired()])
-	ip = StringField('IP Address',validators=[Optional(),IPAddress("Bad IP Address")])
-	mac = StringField('MAC Address',validators=[Optional(), MacAddress("Bad Mac Address")])
-	comments = TextAreaField('Comments')
-	
+	resource_type = StringField('Resource Type',validators=[DataRequired()])
+	source = StringField('Source',validators=[DataRequired()])
+	status = StringField('Status',validators=[Optional()])
+
 
 class UpdateAlertForm(Form):
         status = SelectField('Status', choices=app.config['ASTATUS_CHOICES'])

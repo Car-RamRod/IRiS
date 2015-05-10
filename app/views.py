@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, request, flash
 from datetime import datetime
 from app import app
 from forms import NewAlertForm, UpdateAlertForm, NewIncidentForm, UpdateIncidentForm
-from models import Alert, Incident, iris_db
+from models import Alert, Incident, iris_db, IPSAlert
 from werkzeug import secure_filename
 import os
 import csv
@@ -25,7 +25,6 @@ def index():
 def alert():
 
 	alerts = iris_db.query(Alert)
-	#alerts = []
 
 	if request.method == 'POST':
                 if request.form['btn'] == 'Upload':
@@ -35,6 +34,7 @@ def alert():
 	if request.method == 'POST':
 		if request.form['btn'] == 'New':
 			return redirect(url_for('new_alert'))
+	
 		elif request.form['btn'] == 'Update':
 			selected = request.form.getlist('selected')
 			return redirect(url_for('update_alert', selected=selected))
@@ -46,8 +46,10 @@ def alert():
 	
 		elif request.form['btn'] == 'Promote':
 			selected = request.form.getlist('selected')
+	
 			for s in selected:
 				query = iris_db.query(Alert).filter(Alert.title == s)
+	
 				for q in query:
 					alerts.append(q.to_ref())				
 					#iris_db.remove(q)
@@ -63,8 +65,8 @@ def alert():
 				))
 	
 	return render_template('alert/alert.html', 
-				title='Alert',
-				alerts=alerts)
+				title='Alert')
+			#	alerts=alerts)
 
 @app.route('/details_alert', methods=['GET', 'POST'])
 def details_alert():
@@ -88,27 +90,20 @@ def new_alert():
                         file = request.files['file']
                         upload_file(file)
 	'''
-
         #mongoalchemy
         #alerts = session.query(Alert).filter(Alert.name == 'Second_Alert')       
-	new = 'New'
+
 	if form.validate_on_submit():
-                title = form.title.data
-                ip = [form.ip.data]
-                mac = [form.mac.data]
-                atype = [form.atype.data]
-                entered = datetime.utcnow()
-                comments = [form.comments.data]
-		
-		print title
+                resource_type = form.resource_type.data
+                source = form.source.data
+                status = form.status.data
+                timestamp = datetime.utcnow()
+			
                 #mongoalchemy
-                iris_db.insert(Alert(title=title,
-                                        ip=ip,
-                                        mac=mac,
-                                        status=new,
-                                        atype=atype,
-                                        comments=comments,
-                                        entered=entered))
+                iris_db.insert(Alert(resource_type=resource_type,
+					source=source,
+					status=status,
+					timestamp=timestamp))
                 return redirect(url_for('alert'))
 
 
@@ -132,13 +127,10 @@ def update_alert():
 		query = iris_db.query(Alert).filter(Alert.title == s)
 		for q in query:
 			d = {
-				'title':q.title,
+				'resource_type':q.resource_type,
+				'source':q.source,
 				'status':q.status,
-				'atype':q.atype,
-				'ip':q.ip,
-				'mac':q.mac,
-				'entered':q.entered,
-				'comments':q.comments,
+				'timestamp':q.timestamp,
 				}
 		alerts.append(d)
 
@@ -318,14 +310,10 @@ def parse_upload(directory, filename):
 	with open(directory+'/'+filename) as f:
 		records = csv.DictReader(f)
 		for r in records:
-			title = r['title']
-			status = r['status']
-			ip =  [r['ip']]	
-			mac = [r['mac']]
-			atype = [r['atype']]
-			entered = datetime.utcnow()
-			comments = [r['comments']]
-
+			resource_type = r['resource_type']
+			source = r['source']
+			status =  [r['status']]	
+			
 			iris_db.insert(Alert(title=title,
 						ip=ip,
 						mac=mac,
