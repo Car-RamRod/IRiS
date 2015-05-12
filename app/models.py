@@ -16,51 +16,32 @@ class Field:
 class Alert(Document):
 	config_collection_name = 'alert'
 
-	resource_type = StringField()
+        resource_type = StringField()
 	source = StringField()
 	status = StringField()
 	timestamp = DateTimeField()
-	comments = ListField(AnythingField())	
+	idNum = StringField()
+        comments = ListField(AnythingField())	
 
 	def represent(self):
 		items = []
 
-
-                items.append(Field("Title", self.title))
+                items.append(Field("Resource Type", self.resource_type))
                 items.append(Field("Status", self.status))
-                items.append(Field("Type", self.atype))
-                items.append(Field("Date Entered", self.entered))
-                items.append(Field("IP Address", self.ip))
-                items.append(Field("MAC Address", self.mac))
+                items.append(Field("Source", self.source))
+                items.append(Field("Date Entered", self.timestamp))
+                #items.append(Field("IP Address", self.ip))
+                #items.append(Field("MAC Address", self.mac))
                 items.append(Field("Comments", self.comments))
 	
                 return items
             
 
-	def __repr__(self):
-		'''
-
-		msg = "Title: %s;" % (self.title)
-		msg += "Status: %s;" % (self.status)
-		msg += "Type: "
-		
-		for t in atype:
-			msg += "%s" % (t)
-
-
-		return "Title: %s
-			Status: %s
-			Type: %s
-			Date Entered: %s
-			IP Address: %s
-			MAC Address: %s
-			Comments: %s" % (
-			self.title, self.status, self.atype,
-			self.entered, self.ip, self.mac, self.comments
-		'''
 	def promote(self):
-		source = Source(self, self.source)
-		return source
+            timeRes = Timestamp(self, self.timestamp)
+            sourceRes = Source(self, self.timestamp)
+            return (timeRes, sourceRes)
+
 
 class IPSAlert(Alert):
 	ip_src = StringField()
@@ -69,24 +50,28 @@ class IPSAlert(Alert):
 	port_dst = StringField()
 	
 	def promote(self):	
+                parTup = parent.promote()
 		socket = Socket(self, self.ip_src, self.port_src)
-		return socket
+		return parTup + socket
 
 
-class Resource(Field):
-        creation_datetime = None
-        creator = None
+class Resource(Document):
+    parent = ''
 
+        
+class Timestamp(Resource):
+    stamp = ''
 
-
+    def __init__(self, parent, stamp):
+        self.stamp = stamp
+        self.parent = parent.mongo_id
 
 class Source(Resource):
-        alert_id = None
-        source = None
+    source = ''
 
-        def __init__(self,parent,source):
-                self.alert_id = parent.mongo_id
-		self.source = source
+    def __init(self, parent, source):
+        self.source = source
+        self.parent = parent.mongo_id
 
 class Socket(Resource):
 	alert_id = None
@@ -101,12 +86,16 @@ class Socket(Resource):
 
 class Incident(Document):
 	config_collection_name = 'incident'
-	resource = ListField(AnythingField())
-
+        title = StringField()
+        status = StringField()
+        itype = StringField()
+        entered = DateTimeField()
+	resources = ListField(DocumentField(Resource))
+        comments = ListField(AnythingField())
 
 iris_db = Session.connect('iris_db')
 
 #will clear collection when python  run.py
-iris_db.clear_collection(Alert)
-iris_db.clear_collection(Incident)
+#iris_db.clear_collection(Alert)
+#iris_db.clear_collection(Incident)
 

@@ -23,6 +23,11 @@ class NewIncidentForm(Form):
 	#mac = StringField('MAC Address',validators=[Optional(), MacAddress("Bad Mac Address")])
 	comments = TextAreaField('Comments')
 
+class PromoteIncidentForm(Form):
+    title = StringField('Title', validators=[DataRequired()])
+    itype = SelectField('Type', choices=app.config['ITYPE_CHOICES'], validators=[DataRequired()])
+    comments = TextAreaField('Comments')
+
 class UpdateIncidentForm(Form):
 	#status = SelectField('Status', choices=[('',''),('Resolved','Resolved'),('Updated','Updated')])
 	status = SelectField('Status', choices=app.config['ISTATUS_CHOICES'])

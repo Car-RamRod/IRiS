@@ -1,0 +1,25 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block content %}
+<div>
+               <h1>Promote Incident</h1>
+                <form action="" method="post" name="login">
+                        {{ form.hidden_tag() }}
+                        <div>
+                                {{ form.itype.label }}{{ form.itype }}
+                        </div>
+                        <div>
+                                {{ form.title.label }}{{ form.title(size=24) }}
+                                {% for error in form.title.errors %}
+                                        <span style="color: red;">[{{error}}]</span>
+                                {% endfor %}<br>
+                        </div>
+                        <div>
+                                {{ form.comments.label }}{{ form.comments }}
+                        </div>
+                        <div><input type="submit" value="Submit"></div>
+
+                </form>
+        </div>
+{% endblock %}
+

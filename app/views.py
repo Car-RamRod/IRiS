@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash
 from datetime import datetime
 from app import app
-from forms import NewAlertForm, UpdateAlertForm, NewIncidentForm, UpdateIncidentForm
+from forms import NewAlertForm, UpdateAlertForm, NewIncidentForm, UpdateIncidentForm, PromoteIncidentForm
 from models import Alert, Incident, iris_db, IPSAlert
 from werkzeug import secure_filename
 import os
@@ -46,34 +46,19 @@ def alert():
 	
 		elif request.form['btn'] == 'Promote':
 			selected = request.form.getlist('selected')
-	
-			for s in selected:
-				query = iris_db.query(Alert).filter(Alert.title == s)
-	
-				for q in query:
-					alerts.append(q.to_ref())				
-					#iris_db.remove(q)
+	                return redirect(url_for('promote_incident', 
+			    	selected=selected))
 
-			
-			iris_db.insert(Incident(
-				title=q.title,
-				entered=q.entered,
-				comments=q.comments,
-				status="Promoted",
-				itype=q.itype
-#				alerts=alerts
-				))
-	
-	return render_template('alert/alert.html', 
-				title='Alert')
-			#	alerts=alerts)
+
+        return render_template('alert/alert.html', 
+				title='Alert',
+			    	alerts=alerts)
 
 @app.route('/details_alert', methods=['GET', 'POST'])
 def details_alert():
 
 	selected = request.args.getlist('selected')[0]
-	query = iris_db.query(Alert).filter(Alert.title == selected)
-	
+	query = iris_db.query(Alert).filter(Alert.idNum == selected)
 	return render_template("alert/details_alert.html",
 			                                title='Alert Details',
 			                                alert=query[0].represent())
@@ -98,12 +83,16 @@ def new_alert():
                 source = form.source.data
                 status = form.status.data
                 timestamp = datetime.utcnow()
-			
+                idNum = str(timestamp)
+	        comments = [""]
+        
                 #mongoalchemy
                 iris_db.insert(Alert(resource_type=resource_type,
 					source=source,
 					status=status,
-					timestamp=timestamp))
+					timestamp=timestamp,
+                                        idNum=idNum,
+                                        comments=comments))
                 return redirect(url_for('alert'))
 
 
@@ -124,7 +113,7 @@ def update_alert():
 	selected = request.args.getlist('selected')
 	print selected
 	for s in selected:
-		query = iris_db.query(Alert).filter(Alert.title == s)
+		query = iris_db.query(Alert).filter(Alert.timestamp == s)
 		for q in query:
 			d = {
 				'resource_type':q.resource_type,
@@ -139,7 +128,7 @@ def update_alert():
 	
 		if update:
 		
-			alert = iris_db.query(Alert).filter(Alert.title == update[0])
+			alert = iris_db.query(Alert).filter(Alert.timestamp == update[0])
 			if form.validate_on_submit():
 	    	        	ip = form.ip.data
         		        mac = form.mac.data
@@ -203,6 +192,39 @@ def incident():
 	#			title='Incident',
 	#			incidents=incidents,
 	#			form=form)
+
+@app.route('/promote_incident',methods=['GET', 'POST'])
+def promote_incident():
+    selected = request.args.getlist('selected')
+    res = ()
+    
+    for s in selected:
+        query = iris_db.query(Alert).filter(Alert.idNum == s)
+        for q in query:
+            res += q.promote()
+
+
+    form = PromoteIncidentForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        itype = form.itype.data
+        entered = datetime.utcnow()
+        comments = [form.comments.data]
+        resources = res
+        
+        iris_db.insert(Incident(title=title,
+                                    status="Promoted",
+                                    itype=itype,
+                                    comments=comments,
+                                    entered=entered,
+                                    resources=resources))
+        return redirect(url_for('incident'))
+
+    return render_template("incident/new_incident.html",
+                                title='New Incident',
+				form=form)
+
+       
 
 @app.route('/details_incident', methods=['GET', 'POST'])
 def details_incident():
