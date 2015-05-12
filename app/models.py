@@ -39,7 +39,7 @@ class Alert(Document):
 
 	def promote(self):
             timeRes = Timestamp(self, self.timestamp)
-            sourceRes = Source(self, self.timestamp)
+            sourceRes = SourceDev(self, self.source)
             return (timeRes, sourceRes)
 
 
@@ -50,7 +50,7 @@ class IPSAlert(Alert):
 	port_dst = StringField()
 	
 	def promote(self):	
-                parTup = parent.promote()
+                parTup = Alert.promote()
 		socket = Socket(self, self.ip_src, self.port_src)
 		return parTup + socket
 
@@ -64,14 +64,14 @@ class Timestamp(Resource):
 
     def __init__(self, parent, stamp):
         self.stamp = stamp
-        self.parent = parent.mongo_id
+        self.parent = Resource.mongo_id
 
-class Source(Resource):
-    source = ''
+class SourceDev(Resource):
+    sourceDev = ''
 
-    def __init(self, parent, source):
-        self.source = source
-        self.parent = parent.mongo_id
+    def __init__(self, parent, sourceDev):
+        self.sourceDev = sourceDev
+        self.parent = Resource.mongo_id
 
 class Socket(Resource):
 	alert_id = None
@@ -79,7 +79,7 @@ class Socket(Resource):
 	port = None
 
 	def __init__(self, parent,  ip, port):
-		self.alert_id = parent.mongo_id
+		self.alert_id = Resource.mongo_id
 		self.ip = ip
 		self.port = port
 	
