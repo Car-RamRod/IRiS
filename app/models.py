@@ -23,6 +23,7 @@ class Alert(Document):
 	idNum = StringField()
         comments = ListField(AnythingField())	
 
+
 	def represent(self):
 		items = []
 
@@ -38,9 +39,15 @@ class Alert(Document):
             
 
 	def promote(self):
-            timeRes = Timestamp(self, self.timestamp)
-            sourceRes = SourceDev(self, self.source)
-            return (timeRes, sourceRes)
+            #timeRes = Timestamp(self, self.timestamp)
+            #sourceRes = SourceDev(self, self.source)
+            
+            items = []
+
+            items.append(Field("Timestamp", self.timestamp))
+            items.append(Field("Source", self.source))
+
+            return items
 
 
 class IPSAlert(Alert):
@@ -56,9 +63,29 @@ class IPSAlert(Alert):
 
 
 class Resource(Document):
-    parent = ''
 
-        
+    config_collection_name = 'resource'
+
+    idNum = StringField()
+    parent = RefField(type=DocumentField(Alert))
+    name = StringField()
+    data = StringField()
+
+    '''
+    def __init__(self, parent, name, data):
+        self.parent = parent
+        self.name = name
+        self.data = data
+
+    def __str__(self):
+        return "Test"
+    def __repr__(self):
+        return "Test2"
+    '''
+    #def __iter__(self):
+    #    return iter(self.data)
+
+
 class Timestamp(Resource):
     stamp = ''
 
@@ -90,7 +117,10 @@ class Incident(Document):
         status = StringField()
         itype = StringField()
         entered = DateTimeField()
-	resources = ListField(DocumentField(Resource))
+        resources = ListField(RefField(type=DocumentField(Resource)))
+        #resources = ListField(ListField(AnythingField()))
+        #resources = ListField(Resource)
+        #resources = ListField(AnythingField())
         comments = ListField(AnythingField())
 
 iris_db = Session.connect('iris_db')
@@ -98,4 +128,5 @@ iris_db = Session.connect('iris_db')
 #will clear collection when python  run.py
 #iris_db.clear_collection(Alert)
 #iris_db.clear_collection(Incident)
+#iris_db.clear_collection(Resource)
 

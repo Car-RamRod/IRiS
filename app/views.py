@@ -2,10 +2,11 @@ from flask import render_template, redirect, url_for, request, flash
 from datetime import datetime
 from app import app
 from forms import NewAlertForm, UpdateAlertForm, NewIncidentForm, UpdateIncidentForm, PromoteIncidentForm
-from models import Alert, Incident, iris_db, IPSAlert
+from models import Alert, Incident, iris_db, IPSAlert, Resource
 from werkzeug import secure_filename
 import os
 import csv
+from random import randint
 
 header = ['title','status','atype','entered','ip','mac','comments']
 
@@ -196,13 +197,24 @@ def incident():
 @app.route('/promote_incident',methods=['GET', 'POST'])
 def promote_incident():
     selected = request.args.getlist('selected')
-    res = ()
+    res = []
     
     for s in selected:
         query = iris_db.query(Alert).filter(Alert.idNum == s)
+        
+        
+        print query
+        print type(query)
         for q in query:
-            res += q.promote()
-
+            for f in q.promote():
+                for e in f.elements:
+                    x = str(randint(0,10000))
+                    iris_db.insert(Resource(idNum=x ,parent=q.to_ref(), name=f.name, data=str(e)))
+                    rquery = iris_db.query(Resource).filter(Alert.idNum == str(x))
+                    for r in rquery:
+                        res.append(r.to_ref())
+                    #res += [Resource(q.mongo_id, f.name, e)]
+                    
 
     form = PromoteIncidentForm()
     if form.validate_on_submit():
@@ -212,12 +224,16 @@ def promote_incident():
         comments = [form.comments.data]
         resources = res
         
+        #test = [("1234","1234","1234"),("456","456","456")]
+
+        print resources
+        x= raw_input()
         iris_db.insert(Incident(title=title,
                                     status="Promoted",
                                     itype=itype,
                                     comments=comments,
-                                    entered=entered,
-                                    resources=resources))
+                                    resources=res,
+                                    entered=entered))
         return redirect(url_for('incident'))
 
     return render_template("incident/new_incident.html",
@@ -231,10 +247,17 @@ def details_incident():
 
 	selected = request.args.getlist('selected')[0]
 	query = iris_db.query(Incident).filter(Incident.title == selected)
-	
+        resources = []
+        for resRef in query[0].resources:
+            
+            #print resRef.id
+            #x = raw_input()
+            resources.append(iris_db.query(Resource).filter(Resource.mongo_id == resRef.id))
+            
 	return render_template("incident/details_incident.html",
 			                                title='Incident Details',
-			                                incident=query[0])
+			                                incident=query[0],
+                                                        resources=resources)
 
 
 @app.route('/new_incident', methods=['GET', 'POST'])
@@ -287,10 +310,10 @@ def update_incident():
 				}
 		incidents.append(d)
 
-	if request.method == 'POST':
-		if request.form['btn'] == 'Upload':
-			file = request.files['file']
-			upload_file(file)
+        #if request.method == 'POST':
+        #	if request.form['btn'] == 'Upload':
+#			file = request.files['file']
+#			upload_file(file)
 
 		update = request.form.getlist('update')
 	
@@ -311,7 +334,7 @@ def update_incident():
 				if comments != '':
                                         incident.extend(Incident.comments,comments).execute()
 		
-				incidents = iris_db.query(Incident)	
+                                #incidents = iris_db.query(Incident)	
 				#note: fix boxes not clearing
 				return render_template("incident/update_incident.html",
 			                                title='Update Incident',

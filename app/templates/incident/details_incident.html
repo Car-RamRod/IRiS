@@ -7,25 +7,42 @@
 
 		<div style="text-align: center;">
 		
-		<h1>Title</h1>
+		<h2>Title</h2>
 		<p>{{ incident.title }}</p>
 		
-		<h1>Status</h1>
+		<h2>Status</h2>
 		<p>{{ incident.status }}</p>
 
-		<h1>Type</h1>
+		<h2>Type</h2>
 		<p>{{ incident.itype }}</p>
 
-		<h1>Entered</h1>
+		<h2>Entered</h2>
 		<p>{{ incident.entered }}</p>
 
-		<h1>Comments</h1>
+		<h2>Comments</h2>
 		{% for c in incident.comments %}
 		<p>{{ c }}</p>
 		{% endfor %}
 
+                <br>
+                <hr>
 
+                <h1>Resources</h1>
 
+                <br>
+
+                
+                {% for r in resources %}
+                    {% for s in r %}
+                    <hr>
+                    <h2> Alert_ID </h2>
+                    <p>{{ s.parent }}</p>
+                    <h2>{{ s.name }}</h2>
+                    <p>{{ s.data }}</p>
+                     
+                    {% endfor %}
+                {% endfor %}
+                <hr>
 
 		</div>	
 	
