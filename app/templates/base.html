@@ -26,32 +26,11 @@
 						<li><a href="/incident">Incident</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li><a class="btnUpload" onclick="div_show()" ><span class="glyphicon glyphicon-upload"></span>Upload</a></li>
+						<li><a href="/upload_file"><span class="glyphicon glyphicon-upload"></span>Upload</a></li>
 					</ul>
 				</div>
 			</div>
 		</nav>
-		<div class="uploadDiv">
-		<div class="upload" id="upload">
-			{% with messages = get_flashed_messages() %}
-				{% if messages %}
-					<ul>
-					{% for message in messages %}
-						<li>{{ message }} </li>
-					{% endfor %}
-					</ul>
-				{% endif %}
-			{% endwith %}
-
-			<form action="" method=post enctype="multipart/form-data">
-				<p><input type=file name=file>
-				<!--- note: how to prevent from disapearing when clicking submit button -->
-				<input type="submit" name='btn' value="Upload" >
-				<!--- note: change this background to an image that has a red x in corner for close -->
-				<input type="button" name='close' value="Close" onclick="div_hide()">
-			</form>
-		</div>
-		</div>
 		{% block content %}{% endblock %}
 	</body>
 </html>

@@ -17,7 +17,10 @@
 				<td>{{ a.source }}</td>
 				<td>{{ a.status }}</td>
 				<td>{{ a.timestamp }}</td>
-                                <td>{{ a.comments }}</td>
+                                <td>{% for i in a.comments %}
+					{{ i }}
+				    {% endfor %}
+				</td>
 			</tr>
 		{% endfor %}
 	</tbody>
