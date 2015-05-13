@@ -6,7 +6,7 @@ from models import Alert, Incident, iris_db, IPSAlert
 from werkzeug import secure_filename
 import os
 import csv
-
+import threading, time
 
 @app.route('/')
 @app.route('/index')
@@ -327,4 +327,31 @@ def upload_file():
 	return render_template('upload_file.html',
 				title='Upload File')
 
+#new thread to check and parse files in uploads folder
+#note example scp to act as if there is a cron or sompthing placing files in the folder
+#scp /home/user/Desktop/log.csv /home/user/Desktop/log1.csv /home/user/Desktop/log2.csv ramrod@192.168.1.15:/home/ramrod/IRiS/app/uploads
+#note need to call the interupt method with the app closes
+time_wait = 60
+data_lock = threading.Lock()
+parse_thread = threading.Thread()
 
+def interrupt():
+	global parse_thread
+	parse_thread.cancel()
+
+
+def check_uploads():
+	global parse_thread
+	with data_lock:
+		files = os.listdir(os.path.join(app.config['UPLOAD_FOLDER']))
+		if(files != None):
+			for f in files:
+				if allowed_file(f):
+					parse_upload(app.config['UPLOAD_FOLDER'], f)
+					os.remove(os.path.join(app.config['UPLOAD_FOLDER']+'/'+f))
+				else:
+					os.remove(os.path.join(app.config['UPLOAD_FOLDER']+'/'+f))
+		parse_thread = threading.Timer(time_wait, check_uploads, ())
+		parse_thread.start()
+
+check_uploads()

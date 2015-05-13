@@ -1,4 +1,0 @@
-resource_type,source,status,timestamp,idNum,comments
-Alert 1,New,Email,,192.168.1.11,This is a comment for alert 1
-Alert 2,New,Malware,,,Alert 2 comment
-Alert 3,New,Login,,169.111.255.1,It all workd
