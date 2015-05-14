@@ -6,13 +6,11 @@ from models import Alert, Incident, iris_db, IPSAlert, Resource
 from werkzeug import secure_filename
 import os
 import csv
-<<<<<<< HEAD
 from random import randint
 
 header = ['title','status','atype','entered','ip','mac','comments']
-=======
+
 import threading, time
->>>>>>> acdf1fc848b844bf1dba05de8b3a3c9cfe7abe8e
 
 @app.route('/')
 @app.route('/index')
@@ -282,13 +280,6 @@ def update_incident():
 				}
 		incidents.append(d)
 
-<<<<<<< HEAD
-        #if request.method == 'POST':
-        #	if request.form['btn'] == 'Upload':
-#			file = request.files['file']
-#			upload_file(file)
-=======
->>>>>>> acdf1fc848b844bf1dba05de8b3a3c9cfe7abe8e
 
 		update = request.form.getlist('update')
 	
