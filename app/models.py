@@ -126,7 +126,12 @@ class Incident(Document):
 iris_db = Session.connect('iris_db')
 
 #will clear collection when python  run.py
+<<<<<<< HEAD
 #iris_db.clear_collection(Alert)
 #iris_db.clear_collection(Incident)
 #iris_db.clear_collection(Resource)
+=======
+iris_db.clear_collection(Alert)
+iris_db.clear_collection(Incident)
+>>>>>>> acdf1fc848b844bf1dba05de8b3a3c9cfe7abe8e
 

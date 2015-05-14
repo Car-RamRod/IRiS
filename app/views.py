@@ -6,18 +6,17 @@ from models import Alert, Incident, iris_db, IPSAlert, Resource
 from werkzeug import secure_filename
 import os
 import csv
+<<<<<<< HEAD
 from random import randint
 
 header = ['title','status','atype','entered','ip','mac','comments']
+=======
+import threading, time
+>>>>>>> acdf1fc848b844bf1dba05de8b3a3c9cfe7abe8e
 
 @app.route('/')
 @app.route('/index')
 def index():
-	if request.method == 'POST':
-                if request.form['btn'] == 'Upload':
-                        file = request.files['file']
-                        upload_file(file)
-
 	return render_template("index.html",
 				title='Home')
 
@@ -26,11 +25,6 @@ def index():
 def alert():
 
 	alerts = iris_db.query(Alert)
-
-	if request.method == 'POST':
-                if request.form['btn'] == 'Upload':
-                        file = request.files['file']
-                        upload_file(file)
 
 	if request.method == 'POST':
 		if request.form['btn'] == 'New':
@@ -70,12 +64,6 @@ def details_alert():
 @app.route('/new_alert', methods=['GET', 'POST'])
 def new_alert():
 	form = NewAlertForm()
-	'''
-	if request.method == 'POST':
-                if request.form['btn'] == 'Upload':
-                        file = request.files['file']
-                        upload_file(file)
-	'''
         #mongoalchemy
         #alerts = session.query(Alert).filter(Alert.name == 'Second_Alert')       
 
@@ -105,12 +93,7 @@ def new_alert():
 def update_alert():
 	alerts = []
 	form= UpdateAlertForm()
-	'''
-        if request.method == 'POST':
-                if request.form['btn'] == 'Upload':
-                        file = request.files['file']
-                        upload_file(file)
-        '''
+
 	selected = request.args.getlist('selected')
 	print selected
 	for s in selected:
@@ -165,12 +148,6 @@ def update_alert():
 
 @app.route('/incident', methods=['GET', 'POST'])
 def incident():
-
-	if request.method == 'POST':
-                if request.form['btn'] == 'Upload':
-                        file = request.files['file']
-                        upload_file(file)
-			
 	incidents = iris_db.query(Incident)
 
 	if request.method == 'POST':
@@ -263,11 +240,6 @@ def details_incident():
 @app.route('/new_incident', methods=['GET', 'POST'])
 def new_incident():
 
-#	if request.method == 'POST':
- #               if request.form['btn'] == 'Upload':
-  #                      file = request.files['file']
-   #                     upload_file(file)
-
 	form = NewIncidentForm()
 	if form.validate_on_submit():
                 title = form.title.data
@@ -310,10 +282,13 @@ def update_incident():
 				}
 		incidents.append(d)
 
+<<<<<<< HEAD
         #if request.method == 'POST':
         #	if request.form['btn'] == 'Upload':
 #			file = request.files['file']
 #			upload_file(file)
+=======
+>>>>>>> acdf1fc848b844bf1dba05de8b3a3c9cfe7abe8e
 
 		update = request.form.getlist('update')
 	
@@ -357,29 +332,61 @@ def parse_upload(directory, filename):
 		for r in records:
 			resource_type = r['resource_type']
 			source = r['source']
-			status =  [r['status']]	
-			
-			iris_db.insert(Alert(title=title,
-						ip=ip,
-						mac=mac,
+			status =  r['status']	
+			timestamp = datetime.utcnow()
+			idNum = r['idNum']
+			comments = [r['comments']]
+	
+			iris_db.insert(Alert(resource_type=resource_type,
+						source=source,
 						status=status,
-						atype=atype,
-						comments=comments,
-						entered=entered))
+						timestamp=timestamp,
+						idNum=idNum,
+						comments=comments))
 
 
+@app.route('/upload_file', methods=['GET', 'POST'])
+def upload_file():
 
-def upload_file(file):
-	if file and allowed_file(file.filename):
-		filename = secure_filename(file.filename)
-		file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-		flash('Upload Complete')
-		parse_upload(app.config['UPLOAD_FOLDER'], filename)
-		return redirect(url_for('upload_file'))
-	else:
-		flash('Upload Error: Check File Type')
-		return 
-	#return render_template('upload_file.html',
-	#			title='Upload File')
+	if request.method == 'POST':
+		file = request.files['file']
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			flash('Upload Complete')
+			parse_upload(app.config['UPLOAD_FOLDER'], filename)
+			return redirect(url_for('upload_file'))
+		else:
+			flash('Upload Error: Check File Type')
+		 
+	return render_template('upload_file.html',
+				title='Upload File')
+
+#new thread to check and parse files in uploads folder
+#note example scp to act as if there is a cron or sompthing placing files in the folder
+#scp /home/user/Desktop/log.csv /home/user/Desktop/log1.csv /home/user/Desktop/log2.csv ramrod@192.168.1.15:/home/ramrod/IRiS/app/uploads
+#note need to call the interupt method with the app closes
+time_wait = 60
+data_lock = threading.Lock()
+parse_thread = threading.Thread()
+
+def interrupt():
+	global parse_thread
+	parse_thread.cancel()
 
 
+def check_uploads():
+	global parse_thread
+	with data_lock:
+		files = os.listdir(os.path.join(app.config['UPLOAD_FOLDER']))
+		if(files != None):
+			for f in files:
+				if allowed_file(f):
+					parse_upload(app.config['UPLOAD_FOLDER'], f)
+					os.remove(os.path.join(app.config['UPLOAD_FOLDER']+'/'+f))
+				else:
+					os.remove(os.path.join(app.config['UPLOAD_FOLDER']+'/'+f))
+		parse_thread = threading.Timer(time_wait, check_uploads, ())
+		parse_thread.start()
+
+check_uploads()

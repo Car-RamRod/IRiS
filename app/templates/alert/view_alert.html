@@ -1,4 +1,4 @@
-<table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable sortable">
 	<thead class="fixedHeader">
 		<tr>
 			<th></th>
@@ -17,7 +17,10 @@
 				<td>{{ a.source }}</td>
 				<td>{{ a.status }}</td>
 				<td>{{ a.timestamp }}</td>
-                                <td>{{ a.comments }}</td>
+                                <td>{% for i in a.comments %}
+					{{ i }}
+				    {% endfor %}
+				</td>
 			</tr>
 		{% endfor %}
 	</tbody>

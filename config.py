@@ -6,9 +6,10 @@ host='0.0.0.0'
 
 #upload configs
 #note: where shoule the folder be and what permissions should it have
-UPLOAD_FOLDER = '/home/ramrod/myGit/IRiS/app/uploads'
+UPLOAD_FOLDER = '/home/ramrod/IRiS/app/uploads'
 ALLOWED_EXTENSIONS = set(['csv'])
-
+#csv headers
+#header = ['resource_type','source','status','timestamp','idNum','comments']
 
 #Alert/Incident Drop down configs
 #ATYPE_CHOICES =
